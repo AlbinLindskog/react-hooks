@@ -9,7 +9,7 @@ A collection of useful React hooks. Contains:
 
 ### Install
 ```bash
-npm install --save git+git+https://github.com/AlbinLindskog/reactHooks.git
+npm install --save git+git+https://github.com/AlbinLindskog/react-hooks.git
 ```
 
 ### Testing
@@ -29,11 +29,11 @@ function, and the storage engine to use, which defaults to `window.localStorage`
 ```jsx
 import React from 'react';
 
-import { useStoredReducer } from 'reactHooks';
+import { useStoredReducer } from 'react-hooks';
 
 
 const Component () => {
-  const [state, dispatch] = useStoredReducer(someReducer, 0, 'count', storage=window.sessionStorage);
+  const [state, dispatch] = useStoredReducer(someReducer, 0, 'count', (i) => i, window.sessionStorage);
   return (
     <div>
       The count is: {state.count}
@@ -51,11 +51,11 @@ defaults to `window.localStorage`.
 ```jsx
 import React from 'react';
 
-import { useStoredState } from 'reactHooks';
+import { useStoredState } from 'react-hooks';
 
 
 const Component () => {
-  const [count, setCount] = useStoredState(0, 'count', storage=window.sessionStorage);
+  const [count, setCount] = useStoredState(0, 'count', window.sessionStorage);
   return (
     <div>
       <div>
@@ -76,7 +76,7 @@ your component accordingly.
 ```jsx
 import React from 'react';
 
-import { useAsync } from 'reactHooks';
+import { useAsync } from 'react-hooks';
 
 
 const Component () => {
@@ -99,7 +99,7 @@ when the function starts executing.
 ```jsx
 import React from 'react';
 
-import { useDelayedAsync } from 'reactHooks';
+import { useDelayedAsync } from 'react-hooks';
 
 
 const Component () => {

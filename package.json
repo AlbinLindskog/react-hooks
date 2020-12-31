@@ -1,5 +1,5 @@
 {
-  "name": "reacthooks",
+  "name": "react-hooks",
   "version": "1.0.0",
   "description": "A collection of useful React hooks",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "reactHooks"
+    "url": "react-hooks"
   },
   "author": "Albin Lindskog",
   "license": "MIT",
