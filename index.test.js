@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { useAsync, useDelayedAsync, useStoredReducer, useStoredState } from './index.js'
+import { useAsync, useDelayedAsync, useStoredReducer, useStoredState, useDeepCompareMemo, useDeepCompareEffect } from './index.js'
 
 
 const  testReducer = (state, action) => {
@@ -15,7 +15,7 @@ const  testReducer = (state, action) => {
 
 
 test('useReducer with storage', () => {
-  const { result } = renderHook(() => useStoredReducer(testReducer,{count: 0}, 'count_1'));
+  const { result, rerender } = renderHook(() => useStoredReducer(testReducer,{count: 0}, 'count_1'));
 
   // Check initial value:
   expect(result.current[0]).toStrictEqual({count: 0});
@@ -32,6 +32,10 @@ test('useReducer with storage', () => {
   // Check stored value:
   expect(window.localStorage.getItem('count_1')).toStrictEqual("{\"count\":1}");  // Stored as json in localstorage
 
+  // Should not be changed by re-render:
+  rerender()
+  expect(result.current[0]).toStrictEqual({count: 1});
+
   // Emulate refresh of the page
   const { result: refreshed_result } = renderHook(() => useStoredReducer(testReducer,{count: 0}, 'count_1'));
 
@@ -43,7 +47,7 @@ test('useReducer with storage', () => {
 
 
 test('useReducer with broken storage', () => {
-  let { result } = renderHook(() => useStoredReducer(testReducer, {count: 0}, 'count_2', (i) => (i), Object));
+  let { result, rerender } = renderHook(() => useStoredReducer(testReducer, {count: 0}, 'count_2', (i) => i, Object));
 
   // Check initial value:
   expect(result.current[0]).toStrictEqual({count: 0});
@@ -56,10 +60,14 @@ test('useReducer with broken storage', () => {
   // And check value again:
   expect(result.current[0]).toStrictEqual({count: 1});
 
-  // Emulate refresh of the page
-  const { result: refreshed_result } = renderHook(() => useStoredReducer(testReducer, {count: 0}, 'count_2', (i) => (i), Object));
+  // Should not be changed by re-render:
+  rerender()
+  expect(result.current[0]).toStrictEqual({count: 1});
 
-  // The initial value should the provided initialValue:
+  // Emulate refresh of the page
+  const { result: refreshed_result } = renderHook(() => useStoredReducer(testReducer, {count: 0}, 'count_2', (i) => i, Object));
+
+  // The initial value should the provided initialValue, since storage is broken:
   expect(refreshed_result.current[0]).toStrictEqual({count: 0});
 });
 
@@ -81,7 +89,6 @@ test('useReducer alternative call signatures', () => {
   expect(result.current[0]).toStrictEqual({count: 3});
   // Check stored value:
   expect(window.localStorage.getItem('count_3')).toStrictEqual("{\"count\":3}");  // Stored as json in localstorage
-
 });
 
 
@@ -218,3 +225,70 @@ test('useAsync with error', async () => {
 });
 
 
+test('useDeepCompareMemo with object', () => {
+  const func = jest.fn()
+
+  let dependencies = {a: 'b'}
+  const { rerender } = renderHook(() => useDeepCompareMemo(func, [dependencies]));
+
+  // Should be called on first render
+  expect(func).toHaveBeenCalledTimes(1);
+
+  // Should not be called again on re-renders
+  rerender();
+  expect(func).toHaveBeenCalledTimes(1);
+
+  // Should not not be called when dependencies are changed to a new object with same properties.
+  dependencies = {a: 'b'}
+  rerender();
+  expect(func).toHaveBeenCalledTimes(1);
+
+  // Should be called when dependencies are changed to a new object with different properties.
+  dependencies = {a: 'c'}
+  rerender();
+  expect(func).toHaveBeenCalledTimes(2);
+});
+
+
+test('useDeepCompareEffect with object', () => {
+  const callback = jest.fn()
+
+  let dependencies = {a: 'b'}
+  const { rerender } = renderHook(() => useDeepCompareEffect(callback, [dependencies]));
+
+  // Should be called on first render
+  expect(callback).toHaveBeenCalledTimes(1);
+
+  // Should not be called again on re-renders
+  rerender();
+  expect(callback).toHaveBeenCalledTimes(1);
+
+  // Should not not be called when dependencies are changed to a new object with same properties.
+  dependencies = {a: 'b'}
+  rerender();
+  expect(callback).toHaveBeenCalledTimes(1);
+
+  // Should be called when dependencies are changed to a new object with different properties.
+  dependencies = {a: 'c'}
+  rerender();
+  expect(callback).toHaveBeenCalledTimes(2);
+});
+
+
+test('useDeepCompareEffect cleanup', () => {
+  const cleanup = jest.fn()
+
+  let dependencies = {a: 'b'}
+  const { rerender, unmount } = renderHook(() => useDeepCompareEffect(() => cleanup, [dependencies]));
+
+  // Should not be called first render
+  expect(cleanup).not.toHaveBeenCalled();
+
+  // Should not be called again on re-renders
+  rerender();
+  expect(cleanup).not.toHaveBeenCalled();
+
+  // Should run cleanup on unmount
+  unmount()
+  expect(cleanup).toHaveBeenCalledTimes(1);
+});

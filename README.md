@@ -34,6 +34,7 @@ import { useStoredReducer } from 'react-hooks';
 
 const Component () => {
   const [state, dispatch] = useStoredReducer(someReducer, 0, 'count', (i) => i, window.sessionStorage);
+  
   return (
     <div>
       The count is: {state.count}
@@ -56,6 +57,7 @@ import { useStoredState } from 'react-hooks';
 
 const Component () => {
   const [count, setCount] = useStoredState(0, 'count', window.sessionStorage);
+  
   return (
     <div>
       <div>
@@ -81,6 +83,7 @@ import { useAsync } from 'react-hooks';
 
 const Component () => {
   const { result, error, loading } = useAsync(someAsyncFunc);
+  
   return (
     <div>
       {loading && <div>Loading!</div>}
@@ -104,6 +107,7 @@ import { useDelayedAsync } from 'react-hooks';
 
 const Component () => {
   const { result, error, loading, execute } = useDelayedAsync(someAsyncFunc);
+  
   return (
     <div>
       {(!loading || !result || !error) && <div>Click the button!</div>}
@@ -116,3 +120,54 @@ const Component () => {
   );
 }
 ```
+
+## useDeepCompareMemo
+Equivalent to Reacts useMemo, but relies on deep equality, rather than referential equality. 
+This allows you to pass object and arrays, including values that are recreated each re-render, as dependencies.
+Like useMemo useDeepCompareMemo caches only the most recent value, not all observed values.
+
+```jsx
+import React from 'react';
+
+import { useDeepCompareMemo } from 'react-hooks';
+
+
+const Component () => {
+  const info = {'name': 'Albin Lindskog'};
+  
+  const hash = useDeepCompareMemo(() => {
+    expensiveHash(info)
+  }, [info]);
+  
+  return (
+    <div>{hash}</div>
+  );
+}
+```
+
+## useDeepCompareEffect
+Equivalent to Reacts useEffect, but relies on deep equality, rather than referential equality. 
+This allows you to pass object and arrays, including values that are recreated each re-render, as dependencies.
+
+```jsx
+import React, { useState } from 'react';
+
+import { useDeepCompareEffect } from 'react-hooks';
+
+
+const Component () => {
+  const options = {step: 2};
+  const [step, setStep] = useState(0)
+  
+  useDeepCompareEffect(() => {
+    setStep(options.step);
+  }, [options]);
+  
+  return (
+    <div>{step}</div>
+  );
+}
+```
+
+
+TODO: test add rerender to useState and useReducer

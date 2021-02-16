@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useReducer, useState, useRef } from 'react';
+
+import { dequal } from 'dequal'
 
 
 export const useStoredReducer = (
@@ -118,8 +120,37 @@ export const useAsync = (asyncFunction) => {
   const { result, error, loading, execute } = useDelayedAsync(asyncFunction);
 
   useEffect(() => {
-    execute()
+    execute();
   }, []);
 
   return { result, error, loading };
 };
+
+
+export const useDeepCompareMemo = (func, dependencies) => {
+  /*
+  Equivalent to Reacts useMemo, but relies on deep equality, rather than
+  referential equality. This allows you to pass object and arrays, including values that
+  are recreated each re-render, as dependencies.
+
+  Like useMemo useDeepCompareMemo caches only the most recent value, not all
+  observed values.
+   */
+  const ref = useRef({})
+
+  if (!ref.current || !dequal(dependencies, ref.current.key)) {
+    ref.current = {key: dependencies, value: func()};
+  }
+
+  return ref.current.value
+}
+
+
+export const useDeepCompareEffect = (callBack, dependencies) => {
+  /*
+  Equivalent to Reacts useEffect, but relies on deep equality, rather than
+  referential equality. This allows you to pass object and arrays, including values that
+  are recreated each re-render, as dependencies.
+   */
+  useEffect(callBack, useDeepCompareMemo(() => dependencies, dependencies))
+}
