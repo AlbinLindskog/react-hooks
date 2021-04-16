@@ -1,5 +1,9 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { useAsync, useDelayedAsync, useStoredReducer, useStoredState, useDeepCompareMemo, useDeepCompareEffect } from './index.js'
+
+import {
+  useAsync, useDelayedAsync, useStoredReducer, useStoredState,
+  useDeepCompareMemo, useDeepCompareEffect, useOnClickOutSide
+} from './index.js'
 
 
 const  testReducer = (state, action) => {
@@ -291,4 +295,46 @@ test('useDeepCompareEffect cleanup', () => {
   // Should run cleanup on unmount
   unmount()
   expect(cleanup).toHaveBeenCalledTimes(1);
+});
+
+
+test('useOnClickOutSide event setup and cleaning', () => {
+  // Set up our own mock event handling for the testing
+  const map = {};
+  document.addEventListener = jest.fn((event, listener) => {
+    map[event] = listener;
+  });
+  document.removeEventListener = jest.fn((event, listener) => {
+    delete map[event];
+  });
+
+  // Defined outside of the hook so we can reference them in the expect.
+  const handler = jest.fn()
+  const ref = {current: {}}
+
+  // Event listener should be setup
+  const { rerender, unmount } = renderHook(() => useOnClickOutSide(ref, handler));
+  expect(Object.keys(map)).toHaveLength(1)
+
+  // Event listener should be removed on unmount
+  unmount()
+  expect(Object.keys(map)).toHaveLength(0)
+});
+
+
+test('useOnClickOutSide event handling', () => {
+  // Set up our own mock event handling for the testing
+  const map = {};
+  document.addEventListener = jest.fn((event, listener) => {
+    map[event] = listener;
+  });
+
+  const handler = jest.fn()
+  const ref = {current: {contains: () => false}}
+  const { rerender, unmount } = renderHook(() => useOnClickOutSide(ref, handler));
+
+  // Fire fake event
+  map.onClick({target: 'some-element'})
+  expect(handler).toHaveBeenCalledTimes(1);
+
 });

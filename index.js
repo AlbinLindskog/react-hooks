@@ -154,3 +154,28 @@ export const useDeepCompareEffect = (callBack, dependencies) => {
    */
   useEffect(callBack, useDeepCompareMemo(() => dependencies, dependencies))
 }
+
+
+export const useOnClickOutSide = (ref, handler) => {
+  /*
+  Allows you to detect and act in response to clicks outside of a specified element.
+  The handler argument is used as a dependency to useEffect; take note and wrap it
+  in useCallback when appropriate.
+  */
+
+  const listener = (event) => {
+    // Do nothing if clicking the ref's or it's children elements
+    if (!ref.current || ref.current.contains(event.target)) {
+      return;
+    }
+    handler(event);
+  };
+
+  useEffect(() => {
+      document.addEventListener("onClick", listener);
+      return () => {
+        document.removeEventListener("onClick", listener);
+      };
+    },
+    [ref, handler, listener]);
+}

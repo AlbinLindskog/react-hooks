@@ -5,6 +5,9 @@ A collection of useful React hooks. Contains:
 - useStoredState
 - useAsync
 - useDelayedAsync
+- useDeepCompareMemo
+- useDeepCompareEffect
+- useOnClickOutside
 
 
 ### Install
