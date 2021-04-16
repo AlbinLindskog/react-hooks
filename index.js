@@ -159,23 +159,97 @@ export const useDeepCompareEffect = (callBack, dependencies) => {
 export const useOnClickOutSide = (ref, handler) => {
   /*
   Allows you to detect and act in response to clicks outside a specified element.
-  The handler argument is used as a dependency to useEffect; take note and wrap it
-  in useCallback when appropriate.
   */
 
-  const listener = (event) => {
-    // Do nothing if clicking the ref's or it's children elements
-    if (!ref.current || ref.current.contains(event.target)) {
-      return;
-    }
-    handler(event);
-  };
+  // Create a ref that stores handler. That way if the handler changes, (e.g.
+  // because it was defined inline in a functional component that re-rendered)
+  // only this useEffect hook runs, instead of the one manages the
+  // eventListeners and has some overhead. The correct way is to wrap handler
+  // in useCallback before passing it to useOnClickOutside, but that requires
+  // the user to have insight into the implementation of this hook.
+  const savedHandler = useRef();
+  useEffect(() => {
+    savedHandler.current = handler;
+  }, [handler]);
 
   useEffect(() => {
-      document.addEventListener("onClick", listener);
+    const listener = (event) => {
+      // Do nothing if clicking the ref's or it's children elements
+      if (!ref.current || ref.current.contains(event.target)) {
+        return;
+      }
+      // Call the latest version of the handler, stored in the ref.
+      savedHandler.current(event);
+    }
+
+    document.addEventListener("onClick", listener);
+    return () => {
+      document.removeEventListener("onClick", listener);
+    };
+  },
+  [ref]);
+}
+
+
+export const useScript = (source, onLoad = () => {},  onError = () => {}) => {
+  /*
+  Allows you to dynamically load an external script and add onload callbacks.
+  Useful when you want to interact with an external library and need to wait
+  until the script has loaded before calling a function declared therein.
+
+  The alternative is to include it in the document head for every page request,
+  which would add loading time to your app.
+  */
+
+  // Create refs that stores the callbacks. That way if they change, (e.g.
+  // because they were defined inline in a functional component that re-rendered)
+  // only this useEffect hook runs, instead of the one manages the
+  // eventListeners and has some overhead. The correct way is to wrap the
+  // callbacks in useCallback before passing it to useOnClickOutside, but that
+  // requires the user to have insight into the implementation of this hook.
+  const savedOnLoad = useRef();
+  const savedOnError = useRef();
+  useEffect(() => {
+    savedOnLoad.current = onLoad;
+    savedOnError.current = onError;
+  }, [onLoad, onError]);
+
+
+  useEffect(() => {
+      // Allows you to pass null as source, in case you want to conditionally
+      // load the script.
+      if (!source) {
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = source;
+      script.async = true;
+      document.body.appendChild(script);
+
+      const onLoad = (event) => {
+        // Call the latest version of the handler, stored in the ref.
+        console.log(2, savedOnLoad.current)
+        savedOnLoad.current(event);
+      }
+
+      const onError = (event) => {
+        // Call the latest version of the handler, stored in the ref.
+        savedOnError.current(event);
+      }
+
+      script.addEventListener("load", onLoad);
+      script.addEventListener("error", onError);
+
       return () => {
-        document.removeEventListener("onClick", listener);
+        if (script) {
+          script.removeEventListener("load", onLoad);
+          script.removeEventListener("error", onError);
+        }
       };
     },
-    [ref, handler, listener]);
+    [source]
+  );
+
+  return status;
 }

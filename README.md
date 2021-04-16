@@ -8,6 +8,7 @@ A collection of useful React hooks. Contains:
 - useDeepCompareMemo
 - useDeepCompareEffect
 - useOnClickOutside
+- useScript
 
 
 ### Install
@@ -174,7 +175,6 @@ const Component () => {
 
 ## useOnClickOutside
 Allows you to detect and act in response to clicks outside a specified element.
-The handler argument is used as a dependency to useEffect; take note and wrap it in useCallback when appropriate.
 
 ```jsx
 import React, { useRef, useCallback } from 'react';
@@ -204,3 +204,28 @@ const Component () => {
   );
 }
 ```
+
+## useScript
+Allows you to dynamically load an external script and add onload callbacks.
+Useful when you want to interact with an external library and need to wait until the script has loaded before calling
+a function declared therein.
+
+The alternative is to include it in the document head for every page request, which would add loading time to your app.
+
+```jsx
+import React, { useState } from 'react';
+
+import { useScript } from 'react-hooks';
+
+
+const Component () => {
+  const [stripe, setStripe] = useState()
+  const onLoad = () => setStripe(window.stripe)
+  useScript("https://js.stripe.com/v3/", onLoad);
+    
+  return (
+    <StripeProvider stripe={stripe}>
+      <CheckoutForm />
+    </StripeProvider>
+  );
+}

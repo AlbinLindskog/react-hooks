@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react-hooks'
 
 import {
   useAsync, useDelayedAsync, useStoredReducer, useStoredState,
-  useDeepCompareMemo, useDeepCompareEffect, useOnClickOutSide
+  useDeepCompareMemo, useDeepCompareEffect, useOnClickOutSide, useScript
 } from './index.js'
 
 
@@ -337,4 +337,66 @@ test('useOnClickOutSide event handling', () => {
   map.onClick({target: 'some-element'})
   expect(handler).toHaveBeenCalledTimes(1);
 
+});
+
+
+test('useScript element created', () => {
+  const { result } = renderHook(() => useScript('test-script.com'));
+
+  const script = document.querySelector('script');
+  expect(script).not.toBeNull();
+  expect(script.getAttribute('src')).toEqual('test-script.com');
+});
+
+
+test('useScript event setup and cleaning', () => {
+  // Set up our own mock event handling for the testing
+  const map = {};
+  const script = document.createElement("script")
+  script.addEventListener = jest.fn((event, listener) => {
+    map[event] = listener;
+  })
+  script.removeEventListener = jest.fn((event, listener) => {
+    delete map[event];
+  })
+  document.createElement = jest.fn((element) => {
+    return script
+  })
+
+
+  // Event listener should be setup
+  const { rerender, unmount } = renderHook(() => useScript('test-script.com'));
+  expect(Object.keys(map)).toHaveLength(2)
+
+  // Event listener should be removed on unmount
+  unmount()
+  expect(Object.keys(map)).toHaveLength(0)
+});
+
+
+test('useScript event handling', () => {
+  // Set up our own mock event handling for the testing
+  const map = {};
+  const script = document.createElement("script")
+  script.addEventListener = jest.fn((event, listener) => {
+    map[event] = listener;
+  })
+  script.removeEventListener = jest.fn((event, listener) => {
+    delete map[event];
+  })
+  document.createElement = jest.fn((element) => {
+    return script
+  })
+
+  const onLoad = jest.fn()
+  const onError = jest.fn()
+  const { rerender, unmount } = renderHook(() => useScript('test-script.com', onLoad, onError));
+
+  // Fire fake event
+  map.load({})
+  expect(onLoad).toHaveBeenCalledTimes(1);
+
+  // Fire fake event
+  map.error({})
+  expect(onError).toHaveBeenCalledTimes(1);
 });
