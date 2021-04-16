@@ -172,5 +172,35 @@ const Component () => {
 }
 ```
 
+## useOnClickOutside
+Allows you to detect and act in response to clicks outside a specified element.
+The handler argument is used as a dependency to useEffect; take note and wrap it in useCallback when appropriate.
 
-TODO: test add rerender to useState and useReducer
+```jsx
+import React, { useRef, useCallback } from 'react';
+
+import { useOnClickOutside } from 'react-hooks';
+
+
+const Component () => {
+  const [show, setShow] = useState(true)
+  const ref = useRef()
+  const handler = useCallback(() => {
+    setShow(false)
+  })
+  
+  useOnClickOutside(ref, handler);
+  
+  return (
+    <div>
+      {show ? (
+        <div ref={ref}>
+          Click outside to close.
+        </div>
+      ) : (
+        <button onClick={() => setShow(true)}>Click to open</button>
+      )}
+    </div>
+  );
+}
+```

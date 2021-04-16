@@ -158,7 +158,7 @@ export const useDeepCompareEffect = (callBack, dependencies) => {
 
 export const useOnClickOutSide = (ref, handler) => {
   /*
-  Allows you to detect and act in response to clicks outside of a specified element.
+  Allows you to detect and act in response to clicks outside a specified element.
   The handler argument is used as a dependency to useEffect; take note and wrap it
   in useCallback when appropriate.
   */
