@@ -229,7 +229,6 @@ export const useScript = (source, onLoad = () => {},  onError = () => {}) => {
 
       const onLoad = (event) => {
         // Call the latest version of the handler, stored in the ref.
-        console.log(2, savedOnLoad.current)
         savedOnLoad.current(event);
       }
 
