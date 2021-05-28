@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useState, useRef } from 'react';
 
-import { dequal } from 'dequal'
+import { dequal } from 'dequal';
+import Cookies from 'js-cookie';
 
 
 export const useStoredReducer = (
@@ -252,3 +253,33 @@ export const useScript = (source, onLoad = () => {},  onError = () => {}) => {
 
   return status;
 }
+
+
+export const useCookie = (cookieName) => {
+  /*
+  Allows you to set and access the values of cookies.
+
+  Set the value ´null´ to delete the cookie.
+  */
+
+  // We don't allow you to pass an initial value, instead we use the value
+  // of the cookie, if it exists, as initial value.
+  const [value, setValue] = useState(() => {
+      return Cookies.get(cookieName) || null
+  });
+
+  //See the js-cookie library for what attributes are allowed to be passed
+  //as coookie  options.
+  const updateCookie = useCallback((value, options) => {
+      if (value === null) {
+          Cookies.remove(cookieName);
+      } else {
+          Cookies.set(cookieName, value, options);
+      }
+      setValue(value);
+    },
+    [cookieName]
+  );
+
+  return [value, updateCookie];
+};

@@ -5,10 +5,12 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var _slicedToArray = require('@babel/runtime/helpers/slicedToArray');
 var react = require('react');
 var dequal = require('dequal');
+var Cookies = require('js-cookie');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 var _slicedToArray__default = /*#__PURE__*/_interopDefaultLegacy(_slicedToArray);
+var Cookies__default = /*#__PURE__*/_interopDefaultLegacy(Cookies);
 
 var useStoredReducer = function useStoredReducer(reducer, initialState, storageKey) {
   var init = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function (i) {
@@ -257,8 +259,36 @@ var useScript = function useScript(source) {
   }, [source]);
   return status;
 };
+var useCookie = function useCookie(cookieName) {
+  /*
+  Allows you to set and access the values of cookies.
+   Set the value ´null´ to delete the cookie.
+  */
+  // We don't allow you to pass an initial value, instead we use the value
+  // of the cookie, if it exists, as initial value.
+  var _useState7 = react.useState(function () {
+    return Cookies__default['default'].get(cookieName) || null;
+  }),
+      _useState8 = _slicedToArray__default['default'](_useState7, 2),
+      value = _useState8[0],
+      setValue = _useState8[1]; //See the js-cookie library for what attributes are allowed to be passed
+  //as coookie  options.
+
+
+  var updateCookie = react.useCallback(function (value, options) {
+    if (value === null) {
+      Cookies__default['default'].remove(cookieName);
+    } else {
+      Cookies__default['default'].set(cookieName, value, options);
+    }
+
+    setValue(value);
+  }, [cookieName]);
+  return [value, updateCookie];
+};
 
 exports.useAsync = useAsync;
+exports.useCookie = useCookie;
 exports.useDeepCompareEffect = useDeepCompareEffect;
 exports.useDeepCompareMemo = useDeepCompareMemo;
 exports.useDelayedAsync = useDelayedAsync;

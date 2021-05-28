@@ -9,6 +9,7 @@ A collection of useful React hooks. Contains:
 - useDeepCompareEffect
 - useOnClickOutside
 - useScript
+- useCookie
 
 
 ### Install
@@ -229,3 +230,28 @@ const Component () => {
     </StripeProvider>
   );
 }
+```
+
+## useCookie
+Allows you to set and access the values of cookies. Set the value ´null´ to delete the cookie.
+
+```jsx
+import React from 'react';
+
+import { useCookie } from 'react-hooks';
+
+
+const Component () => {
+  const [valueCookie, setCookie] = useCookie('hasAccepted');
+    
+  return (
+    <div>
+      {!valueCookie ? (
+        <button onClick={() => setCookie(true)}>Click to accept</button>
+      ) : (
+        <p>You have already accepted!</p>
+      )}
+    </div>
+  );
+}
+```

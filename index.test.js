@@ -1,8 +1,11 @@
+import Cookies from 'js-cookie';
+
 import { renderHook, act } from '@testing-library/react-hooks'
 
 import {
   useAsync, useDelayedAsync, useStoredReducer, useStoredState,
-  useDeepCompareMemo, useDeepCompareEffect, useOnClickOutSide, useScript
+  useDeepCompareMemo, useDeepCompareEffect, useOnClickOutSide,
+  useScript, useCookie
 } from './index.js'
 
 
@@ -400,3 +403,38 @@ test('useScript event handling', () => {
   map.error({})
   expect(onError).toHaveBeenCalledTimes(1);
 });
+
+
+test('useCookie initial value', () => {
+  // Initial value should be null if the cookie does not exist.
+  const {result} = renderHook(() => useCookie('testCookie'));
+  expect(result.current[0]).toBe(null);
+
+  // Initial value should be the value of the cookie, if it already exists.
+  Cookies.set('testCookie2', 2);
+  const {result: newResult} = renderHook(() => useCookie('testCookie2'));
+  expect(newResult.current[0]).toBe('2');
+});
+
+
+test('useCookie cookie handling', () => {
+  const { result } = renderHook(() => useCookie('testCookie3'));
+  const spySet = jest.spyOn(Cookies, 'set');
+  const spyRemove = jest.spyOn(Cookies, 'remove')
+
+  // Calling update should update both the value and the cookie
+  act(() => {
+    result.current[1](3);
+  });
+  expect(result.current[0]).toBe(3);
+  expect(spySet).toHaveBeenCalledTimes(1);
+  expect(spySet).toHaveBeenCalledWith('testCookie3', 3, undefined);
+
+  // Deleting the cookie should set the value to null and delete the cookis;
+  act(() => {
+    result.current[1](null);
+  });
+  expect(result.current[0]).toBe(null);
+  expect(spyRemove).toHaveBeenCalledTimes(1);
+  expect(spyRemove).toHaveBeenCalledWith('testCookie3');
+})
