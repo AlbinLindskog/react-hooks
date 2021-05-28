@@ -245,12 +245,12 @@ import { useCookie } from 'react-hooks';
 
 
 const Component () => {
-  const [valueCookie, setCookie] = useCookie(false, 'hasAccepted');
+  const [valueCookie, setCookie] = useCookie('no', 'hasAccepted');
     
   return (
     <div>
-      {!valueCookie ? (
-        <button onClick={() => setCookie(true)}>Click to accept</button>
+      {(valueCookie == 'no') ? (
+        <button onClick={() => setCookie('yes')}>Click to accept</button>
       ) : (
         <p>You have already accepted!</p>
       )}
