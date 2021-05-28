@@ -255,17 +255,17 @@ export const useScript = (source, onLoad = () => {},  onError = () => {}) => {
 }
 
 
-export const useCookie = (cookieName) => {
+export const useCookie = (initial, cookieName) => {
   /*
   Allows you to set and access the values of cookies.
 
   Set the value ´null´ to delete the cookie.
   */
 
-  // We don't allow you to pass an initial value, instead we use the value
-  // of the cookie, if it exists, as initial value.
+  // If the cookie already exists, use that as initial value, else
+  // the provided one.
   const [value, setValue] = useState(() => {
-      return Cookies.get(cookieName) || null
+      return Cookies.get(cookieName) || initial
   });
 
   //See the js-cookie library for what attributes are allowed to be passed

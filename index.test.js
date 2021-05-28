@@ -406,19 +406,19 @@ test('useScript event handling', () => {
 
 
 test('useCookie initial value', () => {
-  // Initial value should be null if the cookie does not exist.
-  const {result} = renderHook(() => useCookie('testCookie'));
-  expect(result.current[0]).toBe(null);
+  // Initial value should be the provided inital value if the cookie does not exist.
+  const {result} = renderHook(() => useCookie(0, 'testCookie'));
+  expect(result.current[0]).toBe(0);
 
   // Initial value should be the value of the cookie, if it already exists.
   Cookies.set('testCookie2', 2);
-  const {result: newResult} = renderHook(() => useCookie('testCookie2'));
+  const {result: newResult} = renderHook(() => useCookie(0, 'testCookie2'));
   expect(newResult.current[0]).toBe('2');
 });
 
 
 test('useCookie cookie handling', () => {
-  const { result } = renderHook(() => useCookie('testCookie3'));
+  const { result } = renderHook(() => useCookie(0, 'testCookie3'));
   const spySet = jest.spyOn(Cookies, 'set');
   const spyRemove = jest.spyOn(Cookies, 'remove')
 

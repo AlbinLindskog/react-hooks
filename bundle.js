@@ -259,15 +259,15 @@ var useScript = function useScript(source) {
   }, [source]);
   return status;
 };
-var useCookie = function useCookie(cookieName) {
+var useCookie = function useCookie(initial, cookieName) {
   /*
   Allows you to set and access the values of cookies.
    Set the value ´null´ to delete the cookie.
   */
-  // We don't allow you to pass an initial value, instead we use the value
-  // of the cookie, if it exists, as initial value.
+  // If the cookie already exists, use that as initial value, else
+  // the provided one.
   var _useState7 = react.useState(function () {
-    return Cookies__default['default'].get(cookieName) || null;
+    return Cookies__default['default'].get(cookieName) || initial;
   }),
       _useState8 = _slicedToArray__default['default'](_useState7, 2),
       value = _useState8[0],

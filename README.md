@@ -242,7 +242,7 @@ import { useCookie } from 'react-hooks';
 
 
 const Component () => {
-  const [valueCookie, setCookie] = useCookie('hasAccepted');
+  const [valueCookie, setCookie] = useCookie(false, 'hasAccepted');
     
   return (
     <div>
