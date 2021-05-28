@@ -257,7 +257,8 @@ export const useScript = (source, onLoad = () => {},  onError = () => {}) => {
 
 export const useCookie = (initial, cookieName) => {
   /*
-  Allows you to set and access the values of cookies.
+  Allows you to set and access the values of cookies. Note, cookies are
+  always stored as text, so all values will be strings.
 
   Set the value ´null´ to delete the cookie.
   */
@@ -265,18 +266,23 @@ export const useCookie = (initial, cookieName) => {
   // If the cookie already exists, use that as initial value, else
   // the provided one.
   const [value, setValue] = useState(() => {
-      return Cookies.get(cookieName) || initial
+      // Cookies are always stored as string, so we cast the value to
+      // a string before calling setValue so it's always consistent,
+      // whether you get the provided value back or a value stored in
+      // a cookie.
+      return Cookies.get(cookieName) || String(initial)
   });
 
   //See the js-cookie library for what attributes are allowed to be passed
   //as coookie  options.
   const updateCookie = useCallback((value, options) => {
       if (value === null) {
+          setValue(value);
           Cookies.remove(cookieName);
       } else {
+          setValue(String(value));
           Cookies.set(cookieName, value, options);
       }
-      setValue(value);
     },
     [cookieName]
   );

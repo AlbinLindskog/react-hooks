@@ -233,7 +233,10 @@ const Component () => {
 ```
 
 ## useCookie
-Allows you to set and access the values of cookies. Set the value ´null´ to delete the cookie.
+Allows you to set and access the values of cookies. Note, cookies are
+always stored as text, so all values will be strings. 
+
+Set the value ´null´ to delete the cookie.
 
 ```jsx
 import React from 'react';

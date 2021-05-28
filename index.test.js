@@ -408,7 +408,7 @@ test('useScript event handling', () => {
 test('useCookie initial value', () => {
   // Initial value should be the provided inital value if the cookie does not exist.
   const {result} = renderHook(() => useCookie(0, 'testCookie'));
-  expect(result.current[0]).toBe(0);
+  expect(result.current[0]).toBe('0');
 
   // Initial value should be the value of the cookie, if it already exists.
   Cookies.set('testCookie2', 2);
@@ -426,7 +426,7 @@ test('useCookie cookie handling', () => {
   act(() => {
     result.current[1](3);
   });
-  expect(result.current[0]).toBe(3);
+  expect(result.current[0]).toBe('3');
   expect(spySet).toHaveBeenCalledTimes(1);
   expect(spySet).toHaveBeenCalledWith('testCookie3', 3, undefined);
 

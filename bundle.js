@@ -261,13 +261,18 @@ var useScript = function useScript(source) {
 };
 var useCookie = function useCookie(initial, cookieName) {
   /*
-  Allows you to set and access the values of cookies.
+  Allows you to set and access the values of cookies. Note, cookies are
+  always stored as text, so all values will be strings.
    Set the value ´null´ to delete the cookie.
   */
   // If the cookie already exists, use that as initial value, else
   // the provided one.
   var _useState7 = react.useState(function () {
-    return Cookies__default['default'].get(cookieName) || initial;
+    // Cookies are always stored as string, so we cast the value to
+    // a string before calling setValue so it's always consistent,
+    // whether you get the provided value back or a value stored in
+    // a cookie.
+    return Cookies__default['default'].get(cookieName) || String(initial);
   }),
       _useState8 = _slicedToArray__default['default'](_useState7, 2),
       value = _useState8[0],
@@ -277,12 +282,12 @@ var useCookie = function useCookie(initial, cookieName) {
 
   var updateCookie = react.useCallback(function (value, options) {
     if (value === null) {
+      setValue(value);
       Cookies__default['default'].remove(cookieName);
     } else {
+      setValue(String(value));
       Cookies__default['default'].set(cookieName, value, options);
     }
-
-    setValue(value);
   }, [cookieName]);
   return [value, updateCookie];
 };
