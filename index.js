@@ -183,9 +183,9 @@ export const useOnClickOutSide = (ref, handler) => {
       savedHandler.current(event);
     }
 
-    document.addEventListener("onClick", listener);
+    document.addEventListener("onClick", listener, {capture: true});
     return () => {
-      document.removeEventListener("onClick", listener);
+      document.removeEventListener("onClick", listener, {capture: true );
     };
   },
   [ref]);
