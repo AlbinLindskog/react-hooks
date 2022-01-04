@@ -5,7 +5,7 @@ import { renderHook, act } from '@testing-library/react-hooks'
 import {
   useAsync, useDelayedAsync, useStoredReducer, useStoredState,
   useDeepCompareMemo, useDeepCompareEffect, useOnClickOutSide,
-  useScript, useCookie
+  useScript, useCookie, useDeepCompareCallback
 } from './index.js'
 
 
@@ -298,6 +298,29 @@ test('useDeepCompareEffect cleanup', () => {
   // Should run cleanup on unmount
   unmount()
   expect(cleanup).toHaveBeenCalledTimes(1);
+});
+
+
+test('useDeepCompareCallback with object', () => {
+  let dependencies = {a: 'b'}
+  const { result, rerender } = renderHook(() => useDeepCompareCallback(() => {jest.fn()}, [dependencies]));
+  let func = result.current
+  
+  console.log('\n\n\n', func, '\n\n\n')
+  
+  // Should not change on re-renders
+  rerender();
+  expect(func).toBe(result.current);
+
+  // Should not not change when dependencies are changed to a new object with same properties.
+  dependencies = {a: 'b'}
+  rerender();
+  expect(func).toBe(result.current);
+
+  // Should change when dependencies are changed to a new object with different properties.
+  dependencies = {a: 'c'}
+  rerender();
+  expect(func).not.toBe(result.current);
 });
 
 

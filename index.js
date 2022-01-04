@@ -157,6 +157,16 @@ export const useDeepCompareEffect = (callBack, dependencies) => {
 }
 
 
+export const useDeepCompareCallback= (callBack, dependencies) => {
+  /*
+  Equivalent to Reacts useCallback, but relies on deep equality, rather than
+  referential equality. This allows you to pass object and arrays, including values that
+  are recreated each re-render, as dependencies.
+   */
+  return useCallback(callBack, useDeepCompareMemo(() => dependencies, dependencies))
+}
+
+
 export const useOnClickOutSide = (ref, handler) => {
   /*
   Allows you to detect and act in response to clicks outside a specified element.
@@ -185,10 +195,9 @@ export const useOnClickOutSide = (ref, handler) => {
 
     document.addEventListener("onClick", listener, {capture: true});
     return () => {
-      document.removeEventListener("onClick", listener, {capture: true );
-    };
-  },
-  [ref]);
+      document.removeEventListener("onClick", listener, {capture: true});
+    }
+  }, [ref]);
 }
 
 

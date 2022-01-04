@@ -172,6 +172,16 @@ var useDeepCompareEffect = function useDeepCompareEffect(callBack, dependencies)
     return dependencies;
   }, dependencies));
 };
+var useDeepCompareCallback = function useDeepCompareCallback(callBack, dependencies) {
+  /*
+  Equivalent to Reacts useCallback, but relies on deep equality, rather than
+  referential equality. This allows you to pass object and arrays, including values that
+  are recreated each re-render, as dependencies.
+   */
+  return react.useCallback(callBack, useDeepCompareMemo(function () {
+    return dependencies;
+  }, dependencies));
+};
 var useOnClickOutSide = function useOnClickOutSide(ref, handler) {
   /*
   Allows you to detect and act in response to clicks outside a specified element.
@@ -197,9 +207,13 @@ var useOnClickOutSide = function useOnClickOutSide(ref, handler) {
       savedHandler.current(event);
     };
 
-    document.addEventListener("onClick", listener);
+    document.addEventListener("onClick", listener, {
+      capture: true
+    });
     return function () {
-      document.removeEventListener("onClick", listener);
+      document.removeEventListener("onClick", listener, {
+        capture: true
+      });
     };
   }, [ref]);
 };
@@ -294,6 +308,7 @@ var useCookie = function useCookie(initial, cookieName) {
 
 exports.useAsync = useAsync;
 exports.useCookie = useCookie;
+exports.useDeepCompareCallback = useDeepCompareCallback;
 exports.useDeepCompareEffect = useDeepCompareEffect;
 exports.useDeepCompareMemo = useDeepCompareMemo;
 exports.useDelayedAsync = useDelayedAsync;

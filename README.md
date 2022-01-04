@@ -7,6 +7,7 @@ A collection of useful React hooks. Contains:
 - useDelayedAsync
 - useDeepCompareMemo
 - useDeepCompareEffect
+- useDeepCompareCallback
 - useOnClickOutside
 - useScript
 - useCookie
@@ -37,7 +38,7 @@ import React from 'react';
 import { useStoredReducer } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const [state, dispatch] = useStoredReducer(someReducer, 0, 'count', (i) => i, window.sessionStorage);
   
   return (
@@ -60,7 +61,7 @@ import React from 'react';
 import { useStoredState } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const [count, setCount] = useStoredState(0, 'count', window.sessionStorage);
   
   return (
@@ -86,7 +87,7 @@ import React from 'react';
 import { useAsync } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const { result, error, loading } = useAsync(someAsyncFunc);
   
   return (
@@ -110,7 +111,7 @@ import React from 'react';
 import { useDelayedAsync } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const { result, error, loading, execute } = useDelayedAsync(someAsyncFunc);
   
   return (
@@ -137,7 +138,7 @@ import React from 'react';
 import { useDeepCompareMemo } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const info = {'name': 'Albin Lindskog'};
   
   const hash = useDeepCompareMemo(() => {
@@ -160,7 +161,7 @@ import React, { useState } from 'react';
 import { useDeepCompareEffect } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const options = {step: 2};
   const [step, setStep] = useState(0)
   
@@ -174,6 +175,27 @@ const Component () => {
 }
 ```
 
+## useDeepCompareCallback
+Equivalent to Reacts useCallback, but relies on deep equality, rather than referential equality. 
+This allows you to pass object and arrays, including values that are recreated each re-render, as dependencies.
+
+```jsx
+import React, { useState } from 'react';
+
+import { useDeepCompareCallback } from 'react-hooks';
+
+
+const Component = ({options}) => {
+  const [value, setValue] = useState(0)
+  
+  const increment = useDeepCompareCallback(() => {
+    setValue(value + options.value);
+  }, [options]);
+  
+  return {value, increment}
+}
+```
+
 ## useOnClickOutside
 Allows you to detect and act in response to clicks outside a specified element.
 
@@ -183,7 +205,7 @@ import React, { useRef, useCallback } from 'react';
 import { useOnClickOutside } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const [show, setShow] = useState(true)
   const ref = useRef()
   const handler = useCallback(() => {
@@ -219,7 +241,7 @@ import React, { useState } from 'react';
 import { useScript } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const [stripe, setStripe] = useState()
   const onLoad = () => setStripe(window.stripe)
   useScript("https://js.stripe.com/v3/", onLoad);
@@ -244,7 +266,7 @@ import React from 'react';
 import { useCookie } from 'react-hooks';
 
 
-const Component () => {
+const Component = () => {
   const [valueCookie, setCookie] = useCookie('no', 'hasAccepted');
     
   return (
